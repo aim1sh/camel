@@ -29,6 +29,13 @@ from camel.prompts import TextPrompt
 
 # Set structured output schema
 class PersonaResponse(BaseModel):
+    r"""Structured persona generated from text.
+
+    Attributes:
+        persona_name (str): The generated persona name.
+        persona_description (str): The generated persona description.
+    """
+
     persona_name: str = Field(description="The name of the persona")
     persona_description: str = Field(
         description="The description of the persona."
@@ -36,8 +43,8 @@ class PersonaResponse(BaseModel):
 
 
 class PersonaHub:
-    r"""The PersonaHub adapted from `"Scaling Synthetic Data Creation with 1,
-    000,000,000 Personas"
+    r"""Persona-driven synthetic data generation adapted from
+    `"Scaling Synthetic Data Creation with 1,000,000,000 Personas"
     <https://github.com/tencent-ailab/persona-hub>`_.
 
     PersonaHub proposes a novel persona-driven data synthesis methodology
@@ -49,7 +56,8 @@ class PersonaHub:
     synthesis is versatile, scalable, flexible, and easy to use, potentially
     driving a paradigm shift in synthetic data creation and applications in
     practice, which may have a profound impact on LLM research and development.
-    Please refer to the paper for more details: https://arxiv.org/pdf/2406.20094.
+    Please refer to the `paper <https://arxiv.org/pdf/2406.20094>`_ for
+    more details.
 
     Args:
         model (BaseModelBackend, optional): The model to use for persona
@@ -103,8 +111,9 @@ class PersonaHub:
 
         Args:
             text (str): The input text for which to infer a persona.
-            action (str): The action associated with the persona (default is
-                "read").
+            action (Literal["read", "write", "like", "dislike"], optional):
+                The action associated with the persona.
+                (default: :obj:`"read"`)
 
         Returns:
             Persona: The inferred persona.
@@ -202,10 +211,10 @@ persona_description: <BLANK>
         r"""Remove similar personas from the group.
 
         Args:
-            embedding_model (BaseEmbedding): The embedding model
-                for similarity compairsion. (default is `None`).
-            similarity_threshold (float): The similarity threshold for
-                deduplication (default is `0.85`).
+            embedding_model (BaseEmbedding, optional): The embedding model
+                used for similarity comparison. (default: :obj:`None`)
+            similarity_threshold (float, optional): The similarity threshold
+                for deduplication. (default: :obj:`0.85`)
         """
         # Changed to default similarity threshold to 0.85 as the default
         # text-embedding-3-small model may give lower similarities than others
@@ -231,16 +240,27 @@ persona_description: <BLANK>
     def _get_embedding(
         embedding_model: BaseEmbedding, description: Optional[str]
     ) -> list[float]:
-        r"""Cache embeddings to reduce recomputation."""
+        r"""Return a cached embedding for a persona description.
+
+        Args:
+            embedding_model (BaseEmbedding): Model used to embed the text.
+            description (Optional[str]): Persona description to embed.
+
+        Returns:
+            List[float]: The embedding vector for the description.
+        """
         return embedding_model.embed(description)
 
     @staticmethod
     def _cosine_similarity(vec1: np.ndarray, vec2: np.ndarray) -> float:
-        r"""Copmute the cosine similarity of two vectors.
+        r"""Compute the cosine similarity of two vectors.
 
         Args:
-            vec1 (np.ndarray): Vector 1
-            vec2 (np.ndarray): Vector 2
+            vec1 (np.ndarray): The first vector.
+            vec2 (np.ndarray): The second vector.
+
+        Returns:
+            float: The cosine similarity of the vectors.
         """
         return np.dot(vec1, vec2) / (
             np.linalg.norm(vec1) * np.linalg.norm(vec2)
@@ -253,16 +273,16 @@ persona_description: <BLANK>
         similarity_threshold: float,
         embedding_model: BaseEmbedding,
     ) -> bool:
-        r"""Check if two personas are similar by consine similarity
-        of the embeddings of their descriptions.
+        r"""Check whether two persona descriptions are similar.
 
         Args:
-            persona1 (Persona1): A persona.
-            persona2 (Persona2): The other persona.
-            similarity_threshold (float): The threshold on consine similarity
-                to determine whether the two personas are similar.
-            embedding_model (BaseEmbedding): The embedding model
-                for similarity compairsion.
+            persona1 (Persona): The first persona.
+            persona2 (Persona): The second persona.
+            similarity_threshold (float): Minimum cosine similarity required.
+            embedding_model (BaseEmbedding): Model used to embed descriptions.
+
+        Returns:
+            bool: Whether the persona descriptions meet the threshold.
         """
 
         # Ensure persona descriptions are not None
@@ -289,5 +309,9 @@ persona_description: <BLANK>
         return iter(self.personas.values())
 
     def get_all_personas(self) -> List[Persona]:
-        r"""Return a list of all personas."""
+        r"""Return all personas in the hub.
+
+        Returns:
+            List[Persona]: The personas in insertion order.
+        """
         return list(self.personas.values())

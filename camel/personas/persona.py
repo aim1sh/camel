@@ -75,21 +75,49 @@ class Persona(BaseModel):
 
     @property
     def id(self) -> uuid.UUID:
+        r"""Return the persona's unique identifier.
+
+        Returns:
+            uuid.UUID: The lazily generated persona identifier.
+        """
         return self._id
 
     @classmethod
     def model_json_schema(cls):
+        r"""Build the JSON schema with the persona identifier included.
+
+        Returns:
+            Dict[str, Any]: The Pydantic schema with a UUID ``id`` field.
+        """
         schema = super().schema()
         schema['properties']['id'] = {'type': 'string', 'format': 'uuid'}
         return schema
 
     def dict(self, *args, **kwargs):
+        r"""Serialize the persona to a dictionary.
+
+        Args:
+            *args (Any): Positional arguments passed to ``model_dump``.
+            **kwargs (Any): Keyword arguments passed to ``model_dump``.
+
+        Returns:
+            Dict[str, Any]: Serialized persona data including ``id``.
+        """
         # Output: {'name': 'Alice', 'description': None, 'text_to_persona_prompt': '...', 'persona_to_persona_prompt': '...', 'id': 'f47ac10b-58cc-4372-a567-0e02b2c3d479'}  # noqa: E501
         d = super().model_dump(*args, **kwargs)
         d['id'] = str(self.id)
         return d
 
     def json(self, *args, **kwargs):
+        r"""Serialize the persona to formatted JSON.
+
+        Args:
+            *args (Any): Positional arguments passed to :meth:`dict`.
+            **kwargs (Any): Keyword arguments passed to :meth:`dict`.
+
+        Returns:
+            str: Formatted JSON containing the persona and its identifier.
+        """
         # Output: '{"name": "Alice", "description": null, "text_to_persona_prompt": "...", "persona_to_persona_prompt": "...", "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"}'  # noqa: E501
         d = self.dict(*args, **kwargs)
         return json.dumps(

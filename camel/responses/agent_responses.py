@@ -38,6 +38,12 @@ class ChatAgentResponse(BaseModel):
 
     @property
     def msg(self):
+        r"""Return the response message when exactly one is available.
+
+        Returns:
+            Optional[BaseMessage]: The only message, or :obj:`None` when the
+                response contains zero or multiple messages.
+        """
         if len(self.msgs) != 1:
             return None
         return self.msgs[0]

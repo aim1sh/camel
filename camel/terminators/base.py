@@ -21,15 +21,31 @@ class BaseTerminator(ABC):
     r"""Base class for terminators."""
 
     def __init__(self, *args, **kwargs) -> None:
+        r"""Initialize shared termination state.
+
+        Args:
+            *args (Any): Positional arguments accepted by subclasses.
+            **kwargs (Any): Keyword arguments accepted by subclasses.
+        """
         self._terminated: bool = False
         self._termination_reason: Optional[str] = None
 
     @abstractmethod
     def is_terminated(self, *args, **kwargs) -> Tuple[bool, Optional[str]]:
+        r"""Check whether the termination condition has been met.
+
+        Args:
+            *args (Any): Positional values required by the implementation.
+            **kwargs (Any): Keyword values required by the implementation.
+
+        Returns:
+            Tuple[bool, Optional[str]]: Termination status and its reason.
+        """
         pass
 
     @abstractmethod
     def reset(self):
+        r"""Reset the terminator so it can evaluate a new conversation."""
         pass
 
 
@@ -40,8 +56,17 @@ class ResponseTerminator(BaseTerminator):
     def is_terminated(
         self, messages: List[BaseMessage]
     ) -> Tuple[bool, Optional[str]]:
+        r"""Check a response for the implementation's stop condition.
+
+        Args:
+            messages (List[BaseMessage]): Messages in the current response.
+
+        Returns:
+            Tuple[bool, Optional[str]]: Termination status and its reason.
+        """
         pass
 
     @abstractmethod
     def reset(self):
+        r"""Reset response-specific termination state."""
         pass

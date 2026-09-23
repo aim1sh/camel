@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ========= Copyright 2023-2026 @ CAMEL-AI.org. All Rights Reserved. =========
-"""Utility functions for parsing MCP tool calls from model output."""
+r"""Utility functions for parsing MCP tool calls from model output."""
 
 import ast
 import json
@@ -46,7 +46,14 @@ logger = logging.getLogger(__name__)
 
 
 def extract_tool_calls_from_text(content: str) -> List[Dict[str, Any]]:
-    """Extract tool call dictionaries from raw text output."""
+    r"""Extract tool call dictionaries from raw text output.
+
+    Args:
+        content (str): Raw model output that may contain JSON-like tool calls.
+
+    Returns:
+        List[Dict[str, Any]]: Parsed dictionaries that define tool calls.
+    """
 
     if not content:
         return []
@@ -101,7 +108,12 @@ def extract_tool_calls_from_text(content: str) -> List[Dict[str, Any]]:
 def _collect_tool_calls(
     payload: Any, accumulator: List[Dict[str, Any]]
 ) -> None:
-    """Collect valid tool call dictionaries from parsed payloads."""
+    r"""Collect valid tool call dictionaries from parsed payloads.
+
+    Args:
+        payload (Any): Parsed JSON-like value to inspect.
+        accumulator (List[Dict[str, Any]]): Destination for valid tool calls.
+    """
 
     if isinstance(payload, dict):
         if payload.get("tool_name") is None:
@@ -113,7 +125,14 @@ def _collect_tool_calls(
 
 
 def _try_parse_json_like(snippet: str) -> Optional[Any]:
-    """Parse a JSON or JSON-like snippet into Python data."""
+    r"""Parse a JSON or JSON-like snippet into Python data.
+
+    Args:
+        snippet (str): Candidate JSON, YAML, or Python-literal payload.
+
+    Returns:
+        Optional[Any]: Parsed data, or :obj:`None` when parsing fails.
+    """
 
     try:
         return json.loads(snippet)
@@ -137,7 +156,15 @@ def _try_parse_json_like(snippet: str) -> Optional[Any]:
 
 
 def _find_json_candidate(content: str, start_idx: int) -> Optional[str]:
-    """Locate a balanced JSON-like segment starting at ``start_idx``."""
+    r"""Locate a balanced JSON-like segment.
+
+    Args:
+        content (str): Text containing a possible JSON-like payload.
+        start_idx (int): Index of the opening brace or bracket.
+
+    Returns:
+        Optional[str]: The balanced segment, or :obj:`None` if invalid.
+    """
 
     opening = content[start_idx]
     if opening not in "{[":
@@ -168,7 +195,16 @@ def _find_json_candidate(content: str, start_idx: int) -> Optional[str]:
 
 
 def _truncate_snippet(snippet: str, limit: int = 120) -> str:
-    """Return a truncated representation suitable for logging."""
+    r"""Return a truncated representation suitable for logging.
+
+    Args:
+        snippet (str): Text to compact and truncate.
+        limit (int, optional): Maximum returned length.
+            (default: :obj:`120`)
+
+    Returns:
+        str: A single-line representation no longer than ``limit``.
+    """
 
     compact = " ".join(snippet.strip().split())
     if len(compact) <= limit:
